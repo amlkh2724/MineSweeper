@@ -1,0 +1,32 @@
+ .cell {
+   background-color: rgb(98, 98, 98);
+   width: 50px;
+   height: 50px;
+   text-align: center;
+   font-size: 1.5em;
+   border: 1px solid black;
+ }
+
+ .cell:hover {
+   background-color: rgba(98, 98, 98, 0.14);
+   cursor: pointer;
+ }
+
+ /* 
+   tr:hover{
+
+    background-color: rgb(80, 33, 33);
+    /* padding: 110px; */
+
+
+ .board-container table {
+   margin: 15px;
+   padding: 15px;
+   border: 5px solid rgb(60, 60, 68);
+   border-radius: 10px;
+   box-shadow: 0px 0px 15px 5px rgba(30, 41, 47, 0.79);
+ } 
+ /* .restartBtn
+ {
+  display: none;
+ } */
