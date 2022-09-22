@@ -1,3 +1,4 @@
+//Minesweeper Game!
 
 'use strict'
 const WIN = '😛'
@@ -5,23 +6,20 @@ const LOST = '😔'
 const MINE = '💣'
 const CELLMARKED = '🚩'
 const EMPTY = ''
+const boardEl = document.querySelector(".board-container")
+
 
 var gGame
 var gLevel
 var gBoard
-const boardEl = document.querySelector(".board-container")
+var life = 3
+gLevel = { SIZE: 7, MINES: 3 }
 
 function initGame() {
+
     gGame = { isOn: false, shownCount: 0, markedCount: 0, secsPassed: 0 }
-    gLevel = { SIZE: 4, MINES: 2 }
     gBoard = buildBoard(gLevel.SIZE)
     renderBoard(gBoard, '.board-container')
-    // gBoard=buildBoard()
-    //     renderBoard(gBoard)
-    // gGame.isOn = true
-    document.querySelector('.restartBtn').style.display = 'none'
-
-
 }
 
 function buildBoard(size) {
@@ -39,15 +37,17 @@ function buildBoard(size) {
     }
     //// check the function
     // board[2][2].isMine = true
-    // board[i][j].isMine = true
+    // board[3][3].isMine = true
     //// check the function
     board = setMinesOnBoard(board)
     board = setMinesNegsCount(board)
+
     // //on the conole!
     checkIfItsWork(board)
     return board
 }
 
+//set mines on the board 
 function setMinesOnBoard(board) {
     for (var i = 0; i < gLevel.MINES; i++) {
         var pos = randomLocationBombs(board)
@@ -56,6 +56,7 @@ function setMinesOnBoard(board) {
     return board
 }
 
+//random location for the bombs
 function randomLocationBombs(board) {
     var EmptyLocation = getEmptycell(board)
     if (!EmptyLocation.length) return
@@ -63,6 +64,8 @@ function randomLocationBombs(board) {
     var randPos = EmptyLocation[randomLocationOnTheBoard]
     return randPos
 }
+
+//Looking for an empty place
 function getEmptycell(board) {
     var emptycell = []
     for (var i = 0; i < board.length; i++) {
@@ -75,6 +78,7 @@ function getEmptycell(board) {
     return emptycell
 }
 
+//put the number of mines
 function setMinesNegsCount(board) {
     var countMines = 0
     for (var i = 0; i < board.length; i++) {
@@ -86,6 +90,7 @@ function setMinesNegsCount(board) {
     return board
 }
 
+//Counting how many mines there are around each one
 function countMineNegs(cellI, cellJ, board) {
     var minesAroundCount = 0
     for (var i = cellI - 1; i <= cellI + 1; i++) {
@@ -98,119 +103,164 @@ function countMineNegs(cellI, cellJ, board) {
     }
     return minesAroundCount
 }
-// function clickedCell(i, j) {
+
 function clickedCell(elCell, i, j) {
-    
-    if ( gBoard[i][j].isMine ) gameOver(elCell)
-    else if ( gBoard[i][j].isMarked ) return false
-    else if ( gBoard[i][j].isShown ) return false
+    if (!gGame.isOn) {
+        gGame.isOn = true
+        startStopwatch()
+    }
+    // if (gBoard[i][j].minesAroundCount === 0) {
+
+    //     expandShown(i,j)
+        
+    // }
+    if (gBoard[i][j].isMine && !gBoard[i][j].isShown) {
+
+        elCell.innerHTML = MINE
+        gBoard[i][j].isShown = true
+        life--;
+        var ellife = document.querySelector('h5')
+        ellife.innerHTML = `lifes ${life}`
+        // console.log("life:", life);
+        if (!life) {
+            stop()
+            gameOver(elCell)
+
+        }
+
+
+    }
+
+    else if (gBoard[i][j].isMarked) return false
+    else if (gBoard[i][j].isShown) return false
     else {
 
-        // gBoard[i][j].isMine=true
-        var numEqualMinesAround = gBoard[i][j].minesAroundCount
-        // gBoard[i][j].isShown=false
-        console.log(gBoard[i][j])
-        gBoard[i][j].isShown = true    
-        elCell.innerHTML = numEqualMinesAround
+        gBoard[i][j].isMine = true
+        gBoard[i][j].isShown = true
+        elCell.innerHTML = gBoard[i][j].minesAroundCount
         checkWin()
+
 
     }
 }
+//to click the right click in the mouse
+function cellMarked(elCell, i, j) {
+    if (gBoard[i][j].  isShown) return false;
 
-function cellMarked(elCell,i, j) {
-    if ( gBoard[i][j].isShown ) return false;
-
-    if ( gBoard[i][j].isMarked ) {
+    if (gBoard[i][j].isMarked) {
         gBoard[i][j].isMarked = false
-        // TODO - change innerHTML to default
-
-    } 
-    // elCell.stopPropagation()
-    else { 
+        // TODO - change innerHTML to default//
+    }
+    // elCell.stopPropagation()//
+    else {
         gBoard[i][j].isMarked = true
         elCell.innerHTML = CELLMARKED
     }
-
-           
-
-}
-function checkWin(){
-    // console.log("checkWin()");
-    // document.querySelector('.restartBtn').style.display = 'block'
-
-var counter=0
-for (var i = 0; i < gBoard.length; i++) {
-    for (var j = 0; j < gBoard.length; j++) {
-        if(gBoard[i][j].isShown)
-        {
-            counter+=1
-        }
-
-    }
-    
-}
-if(counter+gLevel.MINES===gLevel.SIZE**2)
-{
-    boardEl.addEventListener("click", stopProp, {capture: true})
-    boardEl.addEventListener("contectmenu", stopProp, {capture: true})
-    var lost=document.querySelector('h4')
-    var strHTML=`you won`
-    lost.innerHTML=strHTML
-}
 }
 
-// function checkGameOver(ellost) {
-//     console.log("game over");
 
-// }
-function gameOver(elCell)
-{
-    document.querySelector('.restartBtn').style.display = 'block'
-    boardEl.addEventListener("click", stopProp, {capture: true})
-    boardEl.addEventListener("contectmenu", stopProp, {capture: true})
-    var lost=document.querySelector('h4')
-    var strHTML=`YOU LOST`
-    lost.innerHTML=strHTML
-    gGame.isOn = false;
-
+function checkWin() {
+    var counter = 0
     for (var i = 0; i < gBoard.length; i++) {
         for (var j = 0; j < gBoard.length; j++) {
-           if(gBoard[i][j].isMine)
-           {
-            elCell.innerHTML=MINE
-            
-           }
-            
-        }
-        
-    }
-  
+            if (gBoard[i][j].isShown) {
+                counter ++
+            }
 
+        }
+    }
+    if (counter + gLevel.MINES === gLevel.SIZE ** 2) {
+        //addEvent=>stop the game when we win
+        boardEl.addEventListener("click", stopProp, { capture: true })
+        boardEl.addEventListener("contectmenu", stopProp, { capture: true })
+        var lost = document.querySelector('.restartBtn')
+        var strHTML = WIN
+        lost.innerHTML = strHTML
+        stop()
+    }
 }
 
+
+function gameOver(elCell) {
+    boardEl.addEventListener("click", stopProp, { capture: true })
+    boardEl.addEventListener("contectmenu", stopProp, { capture: true })
+    gGame.isOn = false;
+    for (var i = 0; i < gBoard.length; i++) {
+        for (var j = 0; j < gBoard.length; j++) {
+            if (gBoard[i][j].isMine) {
+                elCell.innerHTML = MINE
+            }
+
+        }
+
+    }
+
+
+}
+//to stop the game when we win or lost
 function stopProp(e) {
     e.stopImmediatePropagation()
 }
-function expandShown(board, elCell, i, j) {
 
-
-}
-
-
+//check on the shift+f12
 function checkIfItsWork(board) {
-    var checkMine = []
+    var checkmyself = []
     for (var i = 0; i < board.length; i++) {
-        checkMine[i] = []
+        checkmyself[i] = []
         for (var j = 0; j < board.length; j++) {
             var currCell = board[i][j]
             var isMine = currCell.isMine ? true : false
-            checkMine[i][j] = isMine ? MINE : currCell.minesAroundCount
+            checkmyself[i][j] = isMine ? MINE : currCell.minesAroundCount
         }
     }
-    console.table(checkMine)
+    console.table(checkmyself)
 }
-// function getClassName(location) {
-//     var cellClass = 'cell-' + location.i + '-' + location.j
-//     return cellClass
-// }
 
+
+
+//change levels
+function changeFromEasyToHard(size,mines) {
+    gLevel.SIZE=size
+    gLevel.MINES=mines
+    initGame()
+}
+
+
+
+// function expandShown() To-do
+
+  
+
+
+
+//all the next code about the timer
+const time = document.querySelector('.stopwatch')
+const mainButton = document.querySelector('#main-button')
+const clearButton = document.querySelector('#clear-button')
+const stopwatch = { elapsedTime: 0 }
+function startStopwatch() {
+    //reset start time
+    stopwatch.startTime = Date.now();
+    //run `setInterval()` and save id
+    stopwatch.intervalId = setInterval(() => {
+        //calculate elapsed time
+        const elapsedTime = Date.now() - stopwatch.startTime + stopwatch.elapsedTime
+        //calculate different time measurements based on elapsed time
+        const milliseconds = parseInt((elapsedTime % 1000) / 10)
+        const seconds = parseInt((elapsedTime / 1000) % 60)
+        const minutes = parseInt((elapsedTime / (1000 * 60)) % 60)
+        const hour = parseInt((elapsedTime / (1000 * 60 * 60)) % 24);
+        //display time
+        displayTime(hour, minutes, seconds, milliseconds)
+    }, 100);
+}
+// shows us that the clock is moving
+function displayTime(hour, minutes, seconds, milliseconds) {
+    const leadZeroTime = [hour, minutes, seconds, milliseconds].map(time => time < 10 ? `0${time}` : time)
+    time.innerHTML = leadZeroTime.join(':')
+}
+//stop the watch
+function stop() {
+    stopwatch.elapsedTime += Date.now() - stopwatch.startTime
+    clearInterval(stopwatch.intervalId)
+}
